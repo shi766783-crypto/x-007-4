@@ -10,6 +10,7 @@ const links = [
   { to: '/shopping', label: '采购清单', icon: '🛒' },
   { to: '/diet', label: '饮食记录', icon: '🍽️' },
   { to: '/dashboard', label: '饮食看板', icon: '📊' },
+  { to: '/weekly-report', label: '饮食周报', icon: '📓' },
   { to: '/challenge', label: '清理挑战', icon: '🧹' },
   { to: '/achievements', label: '成就徽章', icon: '🏅' },
   { to: '/leaderboard', label: '排行榜', icon: '🏆' },

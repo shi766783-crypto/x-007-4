@@ -118,6 +118,14 @@ function statusTag(item) {
         <div class="item-actions">
           <BaseButton size="sm" variant="ghost" @click="inventory.consume(item.id)">- 消耗</BaseButton>
           <BaseButton size="sm" variant="ghost" @click="openEdit(item)">编辑</BaseButton>
+          <BaseButton
+            v-if="item.status === 'expired'"
+            size="sm"
+            variant="danger"
+            @click="inventory.discardExpired(item.id)"
+          >
+            🗑️ 丢弃过期
+          </BaseButton>
           <BaseButton size="sm" variant="text" @click="inventory.removeItem(item.id)">删除</BaseButton>
         </div>
       </div>

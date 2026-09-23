@@ -81,12 +81,59 @@ export function weekStartFromKey(weekKey) {
 
 // 本周 7 天的日期 key 数组（周一起）
 export function weekDateKeys(today = new Date()) {
-  const start = parseDateKey(currentWeekStart(today))
+  return weekDateKeysFrom(currentWeekStart(today))
+}
+
+// 由周一日期 key 生成该周 7 天的日期 key 数组（周一起）
+export function weekDateKeysFrom(mondayKey) {
+  const start = parseDateKey(mondayKey)
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start)
     d.setDate(start.getDate() + i)
     return toDateKey(d)
   })
+}
+
+// 生成一段日期范围内覆盖到的周 key（升序，含起止日期所在周）
+export function weekKeysBetween(startKey, endKey) {
+  const keys = []
+  let cursor = parseDateKey(currentWeekStart(parseDateKey(startKey)))
+  const end = parseDateKey(endKey)
+  // 防御异常范围，最多回溯 520 周
+  let guard = 0
+  while (cursor <= end && guard < 520) {
+    keys.push(toWeekKey(cursor))
+    cursor.setDate(cursor.getDate() + 7)
+    guard++
+  }
+  return keys
+}
+
+// 周 key 加减 n 周（n 可为负）
+export function shiftWeekKey(weekKey, n) {
+  const monday = parseDateKey(weekStartFromKey(weekKey))
+  monday.setDate(monday.getDate() + n * 7)
+  return toWeekKey(monday)
+}
+
+// 周区间的起止日期 key（周一、周日）
+export function weekRange(weekKey) {
+  const days = weekDateKeysFrom(weekStartFromKey(weekKey))
+  return { start: days[0], end: days[6] }
+}
+
+// 周区间的中文标签，如「2月3日 - 2月9日」
+export function weekRangeLabel(weekKey) {
+  const { start, end } = weekRange(weekKey)
+  const s = parseDateKey(start)
+  const e = parseDateKey(end)
+  return `${s.getMonth() + 1}月${s.getDate()}日 - ${e.getMonth() + 1}月${e.getDate()}日`
+}
+
+// 判断日期 key 是否落在某一周内
+export function isDateInWeek(dateKey, weekKey) {
+  const { start, end } = weekRange(weekKey)
+  return dateKey >= start && dateKey <= end
 }
 
 // 判断是否为连续日期（用于坚持之星）

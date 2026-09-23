@@ -1,6 +1,12 @@
 <script setup>
+import { onMounted } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppNav from '@/components/layout/AppNav.vue'
+import { useAchievementsStore } from '@/stores/achievements'
+
+// 启动时同步成就解锁状态（补齐首次解锁日期，供周报统计）
+const achievements = useAchievementsStore()
+onMounted(() => achievements.syncUnlocks())
 </script>
 
 <template>

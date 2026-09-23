@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { read, write } from '@/utils/storage'
 import { uid } from '@/utils/id'
-import { remainingDays } from '@/utils/date'
+import { remainingDays, toDateKey } from '@/utils/date'
 import { EXPIRY_WARN_DAYS } from '@/constants'
 
 const STORAGE_KEY = 'inventory'
+const WASTE_KEY = 'waste-log'
 
 function createItem(data) {
   return {
@@ -25,6 +26,8 @@ function createItem(data) {
 export const useInventoryStore = defineStore('inventory', {
   state: () => ({
     items: read(STORAGE_KEY, []),
+    // 过期丢弃记录 [{ id, name, category, quantity, unit, date }]
+    wasteLog: read(WASTE_KEY, []),
   }),
 
   getters: {
@@ -59,11 +62,17 @@ export const useInventoryStore = defineStore('inventory', {
     totalQuantity() {
       return this.items.reduce((sum, i) => sum + Number(i.quantity || 0), 0)
     },
+    // 累计浪费食材种次（日志条数）
+    wasteCount: (state) => state.wasteLog.length,
   },
 
   actions: {
     persist() {
       write(STORAGE_KEY, this.items)
+    },
+
+    persistWaste() {
+      write(WASTE_KEY, this.wasteLog)
     },
 
     addItem(data) {
@@ -83,6 +92,25 @@ export const useInventoryStore = defineStore('inventory', {
     removeItem(id) {
       this.items = this.items.filter((i) => i.id !== id)
       this.persist()
+    },
+
+    // 丢弃过期食材：从库存移除并写入浪费日志（周报统计依据）
+    discardExpired(id) {
+      const item = this.items.find((i) => i.id === id)
+      if (!item) return
+      this.items = this.items.filter((i) => i.id !== id)
+      this.wasteLog.unshift({
+        id: uid('waste'),
+        ingredientId: item.id,
+        name: item.name,
+        category: item.category,
+        quantity: Number(item.quantity || 0),
+        unit: item.unit,
+        reason: '过期丢弃',
+        date: toDateKey(),
+      })
+      this.persist()
+      this.persistWaste()
     },
 
     // 消耗食材（减少数量，归零则删除）

@@ -28,7 +28,10 @@ const catData = computed(() => Object.values(categoryStats.value))
 
 <template>
   <div>
-    <h2>📊 饮食看板</h2>
+    <div class="dash-head">
+      <h2>📊 饮食看板</h2>
+      <RouterLink class="report-link" to="/weekly-report">📓 查看饮食周报 →</RouterLink>
+    </div>
 
     <div class="grid grid-4">
       <StatCard label="本周计划完成率" :value="stats.weekCompletionRate" suffix="%" icon="🎯" color="#2196f3" />
@@ -77,8 +80,18 @@ const catData = computed(() => Object.values(categoryStats.value))
 </template>
 
 <style scoped>
-h2 {
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
+}
+.dash-head h2 {
+  margin: 0;
+}
+.report-link {
+  font-size: 13px;
+  white-space: nowrap;
 }
 .grid {
   margin-bottom: 16px;

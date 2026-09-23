@@ -7,6 +7,7 @@ const routes = [
   { path: '/shopping', name: 'shopping', component: () => import('@/views/ShoppingListView.vue'), meta: { title: '采购清单' } },
   { path: '/diet', name: 'diet', component: () => import('@/views/DietRecordView.vue'), meta: { title: '每日饮食记录' } },
   { path: '/dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { title: '饮食看板' } },
+  { path: '/weekly-report', name: 'weekly-report', component: () => import('@/views/WeeklyReportView.vue'), meta: { title: '饮食周报' } },
   { path: '/challenge', name: 'challenge', component: () => import('@/views/ChallengeView.vue'), meta: { title: '冰箱清理挑战' } },
   { path: '/achievements', name: 'achievements', component: () => import('@/views/AchievementsView.vue'), meta: { title: '成就徽章' } },
   { path: '/leaderboard', name: 'leaderboard', component: () => import('@/views/LeaderboardView.vue'), meta: { title: '排行榜' } },
