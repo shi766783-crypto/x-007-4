@@ -82,11 +82,59 @@ export function weekStartFromKey(weekKey) {
 // 本周 7 天的日期 key 数组（周一起）
 export function weekDateKeys(today = new Date()) {
   const start = parseDateKey(currentWeekStart(today))
-  return Array.from({ length: 7 }, (_, i) => {
+  return datesFromWeekStart(toDateKey(start))
+}
+
+// 指定周一 key 起连续 7 天的日期 key
+export function datesFromWeekStart(startKey, length = 7) {
+  const start = parseDateKey(startKey)
+  return Array.from({ length }, (_, i) => {
     const d = new Date(start)
     d.setDate(start.getDate() + i)
     return toDateKey(d)
   })
+}
+
+// 根据 ISO weekKey 获取该周 7 天日期 key
+export function weekDateKeysByKey(weekKey) {
+  return datesFromWeekStart(weekStartFromKey(weekKey))
+}
+
+// 向前/向后平移周
+export function shiftWeekKey(weekKey, delta) {
+  const start = parseDateKey(weekStartFromKey(weekKey))
+  start.setDate(start.getDate() + delta * 7)
+  return toWeekKey(start)
+}
+
+// ISO 时间转为本地日期 key
+export function dateKeyFromISO(iso) {
+  return toDateKey(new Date(iso))
+}
+
+// 判断日期 key 是否在指定自然日区间内
+export function isDateInRange(dateKey, startKey, endKey) {
+  return dateKey >= startKey && dateKey <= endKey
+}
+
+// 格式化周区间
+export function formatWeekRange(startKey, endKey) {
+  const start = parseDateKey(startKey)
+  const end = parseDateKey(endKey)
+  const startText = `${start.getMonth() + 1}月${start.getDate()}日`
+  if (start.getFullYear() !== end.getFullYear()) {
+    return `${start.getFullYear()}年${startText} - ${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日`
+  }
+  if (start.getMonth() !== end.getMonth()) {
+    return `${startText} - ${end.getMonth() + 1}月${end.getDate()}日`
+  }
+  return `${start.getMonth() + 1}月${start.getDate()}日-${end.getDate()}日`
+}
+
+// 周 key 的简短中文展示
+export function formatWeekKey(weekKey) {
+  const [year, week] = weekKey.split('-W')
+  return `${year}年第${Number(week)}周`
 }
 
 // 判断是否为连续日期（用于坚持之星）

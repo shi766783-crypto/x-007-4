@@ -49,6 +49,18 @@ function statusTag(item) {
   if (item.status === 'near') return { text: `剩余 ${item.remain} 天`, color: '#ff9800' }
   return { text: `剩余 ${item.remain} 天`, color: '#4caf50' }
 }
+
+function markWaste(item) {
+  const input = window.prompt(`登记「${item.name}」浪费数量（${item.unit}）`, item.quantity)
+  if (input === null) return
+  const quantity = Number(input)
+  if (!Number.isFinite(quantity) || quantity <= 0 || quantity > item.quantity) {
+    alert(`请输入 0 到 ${item.quantity} 之间的数量`)
+    return
+  }
+  const reason = window.prompt('浪费原因', '过期变质') || '过期变质'
+  inventory.discard(item.id, quantity, reason.trim() || '过期变质')
+}
 </script>
 
 <template>
@@ -118,6 +130,7 @@ function statusTag(item) {
         <div class="item-actions">
           <BaseButton size="sm" variant="ghost" @click="inventory.consume(item.id)">- 消耗</BaseButton>
           <BaseButton size="sm" variant="ghost" @click="openEdit(item)">编辑</BaseButton>
+          <BaseButton size="sm" variant="ghost" @click="markWaste(item)">登记浪费</BaseButton>
           <BaseButton size="sm" variant="text" @click="inventory.removeItem(item.id)">删除</BaseButton>
         </div>
       </div>

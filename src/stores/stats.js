@@ -31,6 +31,13 @@ export const useStatsStore = defineStore('stats', {
     expiredCount: () => useInventoryStore().expiredItems.length,
     inventoryCount: () => useInventoryStore().items.length,
 
+    // 本周登记的浪费件数
+    weekWasteCount() {
+      const inventory = useInventoryStore()
+      const weekSet = new Set(weekDateKeys())
+      return inventory.wasteRecords.filter((w) => weekSet.has(w.dateKey)).length
+    },
+
     totalSpend: () => useShoppingListStore().totalSpend,
     weeklySpend: () => useShoppingListStore().weeklySpend,
 

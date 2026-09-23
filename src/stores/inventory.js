@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { read, write } from '@/utils/storage'
 import { uid } from '@/utils/id'
-import { remainingDays } from '@/utils/date'
+import { remainingDays, toDateKey } from '@/utils/date'
 import { EXPIRY_WARN_DAYS } from '@/constants'
 
 const STORAGE_KEY = 'inventory'
+const WASTE_KEY = 'waste-records'
 
 function createItem(data) {
   return {
@@ -25,6 +26,7 @@ function createItem(data) {
 export const useInventoryStore = defineStore('inventory', {
   state: () => ({
     items: read(STORAGE_KEY, []),
+    wasteRecords: read(WASTE_KEY, []), // [{ id, ingredientId, name, category, quantity, unit, reason, date, dateKey }]
   }),
 
   getters: {
@@ -66,6 +68,10 @@ export const useInventoryStore = defineStore('inventory', {
       write(STORAGE_KEY, this.items)
     },
 
+    persistWaste() {
+      write(WASTE_KEY, this.wasteRecords)
+    },
+
     addItem(data) {
       const item = createItem(data)
       this.items.unshift(item)
@@ -92,6 +98,30 @@ export const useInventoryStore = defineStore('inventory', {
       const next = Number(item.quantity) - Number(amount)
       if (next <= 0) this.removeItem(id)
       else this.updateItem(id, { quantity: next })
+    },
+
+    // 记录食材浪费，并从库存中扣减对应数量
+    discard(id, quantity = null, reason = '过期变质') {
+      const item = this.items.find((i) => i.id === id)
+      if (!item) return null
+      const amount = Math.min(Number(item.quantity), Math.max(0, Number(quantity ?? item.quantity)))
+      if (amount <= 0) return null
+
+      const record = {
+        id: uid('waste'),
+        ingredientId: item.id,
+        name: item.name,
+        category: item.category,
+        quantity: amount,
+        unit: item.unit,
+        reason,
+        date: new Date().toISOString(),
+        dateKey: toDateKey(),
+      }
+      this.wasteRecords.unshift(record)
+      this.consume(item.id, amount)
+      this.persistWaste()
+      return record
     },
 
     // 入库（增加数量），不存在则新建

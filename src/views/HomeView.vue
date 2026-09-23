@@ -74,7 +74,7 @@ const priority = computed(() =>
     <div class="card">
       <div class="section-title">
         <span>📊 本周概览</span>
-        <router-link to="/dashboard" class="link">看板 →</router-link>
+        <router-link to="/weekly-report" class="link">周报 →</router-link>
       </div>
       <div class="grid grid-4">
         <div class="mini-stat">
